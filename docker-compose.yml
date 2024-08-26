@@ -3,12 +3,28 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      - radiusdb
+    restart: always
+    volumes:
+      - ./raddb/mods-available/sql:/etc/raddb/mods-available/sql
     ports:
-      - 1812-1813:1812-1813/udp
+      - 11812-11813:1812-1813/udp
+    command: radiusd -X
+    healthcheck:
+      test: ["CMD", "radiusd", "-XC"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
     networks:
       - rad-net
+    logging:
+      options:
+         max-size: "50M"
+         max-file: "1"
 
-  mariadb:
+  radiusdb:
     image: mariadb:lts
     restart: always
     environment:
