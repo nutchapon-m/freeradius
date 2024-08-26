@@ -1,0 +1,26 @@
+services:
+  freeradius-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 1812-1813:1812-1813/udp
+    networks:
+      - rad-net
+
+  mariadb:
+    image: mariadb:lts
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: admin@dev
+      MARIADB_DATABASE: radius
+    volumes:
+      - ./data:/var/lib/mysql
+      - ./initdb/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    ports:
+      - 3306:3306
+    networks:
+      - rad-net
+
+networks:
+  rad-net:
